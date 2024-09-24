@@ -1,0 +1,19 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Hello') {
+            steps {
+                sshagent(['3500fb9e-ac0f-46a8-a828-b9e6bab32943']) {
+                //sh 'ssh ec2-user@your-ec2-ip "{your_command}"'
+                sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.32.210 'cd /home/ubuntu'"
+                sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.32.210 'sudo rm -rf JenkinsCICDHtmlProject'"
+                sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.32.210 'git clone https://github.com/VinitKulkarni/JenkinsCICDHtmlProject.git'"
+                sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.32.210 'sudo cp -r /home/ubuntu/JenkinsCICDHtmlProject/* /var/www/htmlproject/'"
+                sh "ssh -o StrictHostKeyChecking=no ubuntu@172.31.32.210 'sudo systemctl restart nginx'"
+    
+                }
+            }
+        }
+    }
+}
