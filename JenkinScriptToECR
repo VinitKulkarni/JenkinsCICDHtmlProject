@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('GIT PULL') {
+            steps{
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/VinitKulkarni/HelloworldDockerProject.git/'
+                echo "GIT PULL COMPLETED"
+            }
+        }
+        
+        stage('BUILD IMAGE') {
+            steps {
+                script {
+                    docker.build "helloworld:${BUILD_NUMBER}"
+                    echo "DOCKER BUILD COMPLETED"
+                }
+            } 
+        }
+        
+        stage('LOGIN TO ECR') {
+            steps {
+                script {
+                    sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 905418074680.dkr.ecr.ap-south-1.amazonaws.com'
+                    echo "LOGIN SUCCESS"
+                }
+            }
+        }
+        
+        stage('IMAGE TAG') {
+            steps {
+                script {
+                    sh "docker tag helloworld:${BUILD_NUMBER} 905418074680.dkr.ecr.ap-south-1.amazonaws.com/helloworld:${BUILD_NUMBER}"
+                    echo "IMAGE TAGGED"
+                    
+                }
+            } 
+        }
+        
+        stage('PUSH TO ECR') {
+            steps {
+                script {
+                    sh "docker push 905418074680.dkr.ecr.ap-south-1.amazonaws.com/helloworld:${BUILD_NUMBER}"
+                    echo "IMAGE PUSH TO ECR IS SUCCESS"
+                }
+            } 
+        }
+        
+        stage('CLEAN UP') {
+            steps {
+                script {
+                    echo "CLEANED"
+                }
+            } 
+        }
+    }
+}
